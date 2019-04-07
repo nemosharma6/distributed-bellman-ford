@@ -3,6 +3,8 @@ import java.util.List;
 
 public class Master {
 
+    static final int MaxRoundGap = 15;
+
     public static void main(String[] args) {
         Log.init(args[1]);
         ParseInput.readFile(args[0]);
@@ -28,7 +30,7 @@ public class Master {
         int round = 0;
 
         try {
-            while (round < ParseInput.processCount) {
+            while (round < ParseInput.processCount * (MaxRoundGap + 1)) {
                 for (Node node : nodes)
                     node.start();
 
@@ -43,9 +45,9 @@ public class Master {
 
         for (Node node : nodes) {
             Log.write(Master.class.getName(), "Node : " + node.getId() + ", Parent : " + node.parent() +
-                    ", Path : " + node.getPath() + ", Distance : " + node.getRootDistance());
+                    ", Path : " + node.getPath() + ", Distance : " + node.getDistance() + ", MCount :" + node.getCount());
             System.out.println(Master.class.getName() + " : " + node.getId() + ", Parent : " + node.parent() +
-                    ", Path : {" + node.getPath() + " }, Distance : " + node.getRootDistance());
+                    ", Path : {" + node.getPath() + " }, Distance : " + node.getDistance() + ", MCount :" + node.getCount());
         }
     }
 }

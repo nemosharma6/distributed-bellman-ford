@@ -1,6 +1,7 @@
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class Node implements Runnable {
 
@@ -9,8 +10,10 @@ public class Node implements Runnable {
     private int id, round;
     private Link parentLink;
     private Map<Integer, Link> linkMap;
+    private Map<Integer, Integer> messageTimer;
     private String name, path;
-    private int rootDistance;
+    private int distance;
+    int count;
 
     Node(int id, List<Link> links) {
         this.id = id;
@@ -19,6 +22,7 @@ public class Node implements Runnable {
         linkMap = new HashMap<>();
         parentLink = null;
         name = "node-" + id;
+        messageTimer = new HashMap<>();
 
         StringBuilder sb = new StringBuilder();
         sb.append("[");
@@ -32,8 +36,9 @@ public class Node implements Runnable {
         sb.append("]");
         Log.write(name, " edges " + sb.toString());
         int tmp = ParseInput.adjacencyMatrix[id][ParseInput.rootProcess];
-        rootDistance = tmp == 0 ? ((id == ParseInput.rootProcess) ? 0 : Integer.MAX_VALUE) : tmp;
+        distance = tmp == 0 ? ((id == ParseInput.rootProcess) ? 0 : Integer.MAX_VALUE) : tmp;
         path = tmp == 0 ? "" : String.valueOf(ParseInput.rootProcess);
+        count = 0;
     }
 
     void start() {
@@ -62,13 +67,15 @@ public class Node implements Runnable {
             initiate = false;
         } else {
 
+            count += linkMap.size();
             for (Map.Entry<Integer, Link> e : linkMap.entrySet()) {
                 Message msg = e.getValue().readMsg(id);
+                if (msg.getSrc() < 0) continue;
                 int src = msg.getSrc(), dist = msg.getDist();
                 int tmp = ParseInput.adjacencyMatrix[src][id];
-                if (tmp != 0 && dist != Integer.MAX_VALUE && tmp + dist <= rootDistance && id != ParseInput.rootProcess) {
+                if (tmp != 0 && dist != Integer.MAX_VALUE && tmp + dist <= distance && id != ParseInput.rootProcess) {
                     path = msg.getPath() + " " + src;
-                    rootDistance = tmp + dist;
+                    distance = tmp + dist;
                     parentLink = e.getValue();
                 }
             }
@@ -78,8 +85,21 @@ public class Node implements Runnable {
     }
 
     void sendMessagesToLinks() {
+
+        Random random = new Random();
+        if (messageTimer.size() == 0) {
+            for (Map.Entry<Integer, Link> e : linkMap.entrySet())
+                messageTimer.put(e.getKey(), random.nextInt(Master.MaxRoundGap));
+        }
+
         for (Map.Entry<Integer, Link> e : linkMap.entrySet()) {
-            Message msg = new Message(path, id, rootDistance);
+            Message msg;
+            if (messageTimer.get(e.getKey()) == round) {
+                msg = new Message(path, id, distance);
+                messageTimer.put(e.getKey(), random.nextInt(Master.MaxRoundGap));
+            } else
+                msg = new Message("", -1, 0); // dummy message
+
             e.getValue().sendMsg(id, msg);
         }
     }
@@ -92,8 +112,12 @@ public class Node implements Runnable {
         return path;
     }
 
-    int getRootDistance() {
-        return rootDistance;
+    int getDistance() {
+        return distance;
+    }
+
+    int getCount() {
+        return count;
     }
 
 }
