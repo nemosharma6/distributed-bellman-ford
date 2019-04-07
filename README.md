@@ -9,6 +9,9 @@ row1 -> number of nodes
 row2 -> root id   
 remaining rows indicate weight matrix
 
+#### internal parameter
+MaxRoundGap -> parameter to simulate async message transfer.
+
 #### compile and run
 
 mvn clean package   
