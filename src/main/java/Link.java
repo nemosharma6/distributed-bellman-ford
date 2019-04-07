@@ -25,6 +25,16 @@ public class Link {
         return true;
     }
 
+    Message peekSelfMsg(int reader){
+        if (reader == node1) return node1Writer.peek();
+        else return node2Writer.peek();
+    }
+
+    Message peekMsg(int reader){
+        if (reader == node1) return node2Writer.peek();
+        else return node1Writer.peek();
+    }
+
     Message readMsg(int reader) {
         if (reader == node1) return node2Writer.poll();
         else return node1Writer.poll();

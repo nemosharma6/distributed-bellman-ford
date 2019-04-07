@@ -30,14 +30,26 @@ public class Master {
         int round = 0;
 
         try {
-            while (round < ParseInput.processCount * (MaxRoundGap + 1)) {
-                for (Node node : nodes)
-                    node.start();
-
-                for (Node node : nodes)
-                    node.join();
+            while (round < ParseInput.processCount) {
 
                 round++;
+                while (true) {
+                    for (Node node : nodes)
+                        node.start();
+
+                    for (Node node : nodes)
+                        node.join();
+
+                    boolean roundStatus = true;
+                    for (Node node : nodes)
+                        roundStatus = roundStatus && node.isReadyToGo();
+
+                    if(roundStatus) {
+                        for (Node node: nodes)
+                            node.setNextAsTrue();
+                        break;
+                    }
+                }
             }
         } catch (Exception e) {
             Log.write(Master.class.getName(), e.getMessage());
