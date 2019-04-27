@@ -15,4 +15,4 @@ MaxRoundGap -> parameter to simulate async message transfer.
 #### compile and run
 
 mvn clean package   
-java -jar target/{sync.jar} <path_to_input_file> <path_to_output_log_file>
+java -jar target/{async.jar} <path_to_input_file> <path_to_output_log_file>
